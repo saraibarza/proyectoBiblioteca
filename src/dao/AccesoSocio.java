@@ -13,49 +13,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class AccesoSocio {
-
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int opcion;
-
-        do {
-            mostrarMenu();
-            opcion = leerEntero(scanner, "Selecciona una opcion: ");
-
-            try {
-                switch (opcion) {
-                    case 0:
-                        System.out.println("Programa finalizado.");
-                        break;
-                    case 1:
-                        probarInsertarSocio(scanner);
-                        break;
-                    case 2:
-                        mostrarSocios(consultarSocios(), "No se ha encontrado ningun socio en la base de datos.");
-                        break;
-                    case 3:
-                        probarSociosPorLocalidad(scanner);
-                        break;
-                    case 4:
-                        probarSociosSinPrestamos();
-                        break;
-                    case 5:
-                        probarSociosConPrestamosFecha(scanner);
-                        break;
-                    case 6:
-                        probarSociosConMasPrestamos();
-                        break;
-                    default:
-                        System.out.println("La opcion de menu debe estar comprendida entre 0 y 6.");
-                }
-            } catch (BDException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println();
-        } while (opcion != 0);
-    }
-
     public static void insertarSocio(Socio socioNuevo) throws BDException {
         String sql = "INSERT INTO socio (dni, nombre, domicilio, telefono, correo) VALUES (?, ?, ?, ?, ?)";
 
