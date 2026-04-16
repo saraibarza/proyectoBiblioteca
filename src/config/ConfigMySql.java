@@ -11,7 +11,6 @@ public class ConfigMySql {
 
 	private static final String DRIVER = "com.mysql.cj.jdbc.Driver";
 	private static final String URLBD = "jdbc:mysql://localhost:3306/biblioteca";
-
 	private static final String usuario = "prompt";
 	private static final String contrasena = "case";
 
@@ -33,10 +32,8 @@ public class ConfigMySql {
 			throw new BDException(BDException.ERROR_CARGAR_DRIVER + e.getMessage());
 		} catch (SQLException e) {			
 			throw new BDException(BDException.ERROR_ABRIR_CONEXION + e.getMessage());
-		}		
-
+		}
 		return conexion;
-
 	}
 
 	/**
@@ -45,14 +42,11 @@ public class ConfigMySql {
 	 * @throws BDException
 	 */
 	public static void cerrarConexion(Connection conexion) throws BDException {
-				
 		try {
 			conexion.close();
 		} catch (SQLException e) {
 			throw new BDException(BDException.ERROR_CERRAR_CONEXION + e.getMessage() );
 		}
 		
-		
 	}
-
 }

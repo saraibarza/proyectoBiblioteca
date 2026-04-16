@@ -10,4 +10,3 @@ public class ExcepcionesBiblioteca extends Exception {
         super(mensaje);
     }
 }
-

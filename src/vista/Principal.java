@@ -7,7 +7,6 @@ import excepciones.ExcepcionesBiblioteca;
 import modelo.Libro;
 import modelo.Prestamo;
 import modelo.Socio;
-
 import java.util.List;
 
 public class Principal {

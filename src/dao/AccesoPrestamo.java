@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import config.ConfigMySql;
-import excepciones.ExcepcionesBiblioteca;
 import modelo.Libro;
 import modelo.Prestamo;
 import excepciones.BDException;
+import excepciones.ExcepcionesBiblioteca;
 import modelo.Socio;
 
 public class AccesoPrestamo {
@@ -79,13 +79,13 @@ public class AccesoPrestamo {
         int lineasInsertadas = 0;
         Connection conexion = null;
 
-        if(!libroDisponible(prestamo.getCodigo_libro())){
+        if (!libroDisponible(prestamo.getCodigo_libro())) {
             throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.LIBRO_NO_DISPONIBLE);
         } else if (!puedeSocioPrestar(prestamo.getCodigo_socio())) {
             throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.SOCIO_NO_DISPONIBLE);
         }
 
-        try{
+        try {
             conexion = ConfigMySql.abrirConexion();
             String sql = "INSERT INTO prestamo (codigo_libro, codigo_socio, fecha_inicio, fecha_fin) VALUES (?, ?, ?, ?)";
             PreparedStatement ps = conexion.prepareStatement(sql);
@@ -98,7 +98,7 @@ public class AccesoPrestamo {
             lineasInsertadas = ps.executeUpdate();
         } catch (SQLException e) {
             String mensaje = e.getMessage().toLowerCase();
-            if(mensaje.contains("fk_libro_prestamo")){
+            if (mensaje.contains("fk_libro_prestamo")) {
                 throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.CODIGO_LIBRO_NO_ENCONTRADO);
             } else if (mensaje.contains("fk_socio_prestamo")) {
                 throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.CODIGO_SOCIO_NO_ENCONTRADO);
@@ -125,11 +125,11 @@ public class AccesoPrestamo {
      * @return
      * @throws BDException
      */
-    public static boolean actualizarDevolucionDelPrestamo(int codigo_libro, int codigo_socio, String fecha_inicio, String fecha_devolucion) throws BDException{
+    public static boolean actualizarDevolucionDelPrestamo(int codigo_libro, int codigo_socio, String fecha_inicio, String fecha_devolucion) throws BDException {
         int filasActualizadas = 0;
         Connection conexion = null;
 
-        try{
+        try {
             conexion = ConfigMySql.abrirConexion();
             String sql = "UPDATE prestamo SET fecha_devolucion = ? WHERE codigo_libro = ? AND codigo_socio = ? AND fecha_inicio = ?";
             PreparedStatement ps = conexion.prepareStatement(sql);
@@ -160,12 +160,12 @@ public class AccesoPrestamo {
      * @return
      * @throws BDException
      */
-    public static boolean eliminarPrestamo(int codigo_libro, int codigo_socio, String fecha_inicio) throws BDException{
+    public static boolean eliminarPrestamo(int codigo_libro, int codigo_socio, String fecha_inicio) throws BDException {
         int filasEliminadas = 0;
         PreparedStatement ps = null;
         Connection conexion = null;
 
-        try{
+        try {
             conexion = ConfigMySql.abrirConexion();
             String sql = "DELETE FROM prestamo WHERE codigo_libro = ? AND codigo_socio = ? AND fecha_inicio = ?";
             ps = conexion.prepareStatement(sql);
@@ -202,7 +202,7 @@ public class AccesoPrestamo {
             PreparedStatement ps = conexion.prepareStatement(sql);
 
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 Prestamo prestamo = new Prestamo(
                         rs.getInt("codigo_libro"),
                         rs.getInt("codigo_socio"),
@@ -227,19 +227,19 @@ public class AccesoPrestamo {
      * @return
      * @throws BDException
      */
-    public static List<Prestamo> consultarTodosLosPrestamosNoDevueltos() throws BDException{
+    public static List<Prestamo> consultarTodosLosPrestamosNoDevueltos() throws BDException {
         List<Prestamo> prestamosNoDevueltos = new ArrayList<>();
         Connection conexion = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        try{
+        try {
             conexion = ConfigMySql.abrirConexion();
             String sql = "SELECT * FROM prestamo WHERE fecha_devolucion IS NULL";
             ps = conexion.prepareStatement(sql);
 
             rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 Prestamo prestamo = new Prestamo(
                         rs.getInt("codigo_libro"),
                         rs.getInt("codigo_socio"),
@@ -280,7 +280,7 @@ public class AccesoPrestamo {
 
             ps.setString(1, fecha);
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 String[] prestamo = new String[5];
                 prestamo[0] = rs.getString("dni");
                 prestamo[1] = rs.getString("nombre");
@@ -309,7 +309,7 @@ public class AccesoPrestamo {
         List<Libro> libros = new ArrayList<>();
         Connection conexion = null;
 
-        try{
+        try {
             conexion = ConfigMySql.abrirConexion();
             String sql = "SELECT l.* FROM libro l, prestamo p " +
                     "WHERE l.codigo = p.codigo_libro " +
@@ -319,14 +319,14 @@ public class AccesoPrestamo {
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Libro libro = new Libro(
+                Libro libro = new Libro(/*
                         rs.getInt("codigo"),
                         rs.getString("isbn"),
                         rs.getString("titulo"),
                         rs.getString("escritor"),
                         rs.getInt("año_publicacion"),
                         rs.getDouble("puntuacion")
-                );
+                */);
                 libros.add(libro);
             }
         } catch (SQLException e) {
@@ -348,7 +348,7 @@ public class AccesoPrestamo {
         List<Socio> socios = new ArrayList<>();
         Connection conexion = null;
 
-        try{
+        try {
             conexion = ConfigMySql.abrirConexion();
             String sql = "SELECT s.* FROM socio s" +
                     " JOIN prestamo p ON s.codigo = p.codigo_socio" +
@@ -384,13 +384,13 @@ public class AccesoPrestamo {
      * @return
      * @throws BDException
      */
-    public static List<String[]> vecesLibrosPrestados() throws BDException{
+    public static List<String[]> vecesLibrosPrestados() throws BDException {
         List<String[]> prestamos = new ArrayList<>();
         Connection conexion = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        try{
+        try {
             conexion = ConfigMySql.abrirConexion();
             String sql = "SELECT l.isbn, l.titulo, COUNT(*) AS total" +
                     " FROM libro l JOIN prestamo p ON l.codigo = p.codigo_libro" +
@@ -398,7 +398,7 @@ public class AccesoPrestamo {
             ps = conexion.prepareStatement(sql);
 
             rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 String[] prestamo = new String[3];
                 prestamo[0] = rs.getString("isbn");
                 prestamo[1] = rs.getString("titulo");
@@ -423,13 +423,13 @@ public class AccesoPrestamo {
      * @return
      * @throws BDException
      */
-    public static List<String[]> vecesSociosPrestados() throws BDException{
+    public static List<String[]> vecesSociosPrestados() throws BDException {
         List<String[]> prestamos = new ArrayList<>();
         Connection conexion = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
-        try{
+        try {
             conexion = ConfigMySql.abrirConexion();
             String sql = "SELECT s.dni, s.nombre, COUNT(*) AS total" +
                     " FROM socio s JOIN prestamo p ON s.codigo = p.codigo_socio" +
@@ -437,7 +437,7 @@ public class AccesoPrestamo {
             ps = conexion.prepareStatement(sql);
 
             rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 String[] prestamo = new String[3];
                 prestamo[0] = rs.getString("dni");
                 prestamo[1] = rs.getString("nombre");
@@ -454,3 +454,4 @@ public class AccesoPrestamo {
         return prestamos;
     }
 }
+
