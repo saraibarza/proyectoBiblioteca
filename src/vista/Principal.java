@@ -16,7 +16,7 @@ public class Principal {
      *
      * @return
      */
-    public static int menu(){
+    public static int menu() {
         System.out.println("MENU");
         System.out.println("13. Insertar un préstamo en la base de datos.");
         System.out.println("14. Actualizar la fecha de devolución de un prestamo en la base de datos.");
@@ -44,10 +44,10 @@ public class Principal {
     public static void main(String[] args) throws BDException, ExcepcionesBiblioteca {
         int opcion = 1;
         try {
-            do{
+            do {
                 opcion = menu();
 
-                switch(opcion) {
+                switch (opcion) {
                     // Insertar un préstamo en la base de datos.
                     case 13: {
                         int codigo_libro = Teclado.leerEntero("Código del libro: ");
@@ -56,7 +56,7 @@ public class Principal {
                         String fecha_final = Teclado.leerCadena("Fecha final: ");
                         Prestamo prestamo = new Prestamo(codigo_libro, codigo_socio, fecha_inicio, fecha_final);
 
-                        if(AccesoPrestamo.insertarPrestamo(prestamo)){
+                        if (AccesoPrestamo.insertarPrestamo(prestamo)) {
                             System.out.println("Se ha insertado el prestamo correctamente.");
                         } else {
                             System.out.println("No se ha podido insertar el prestamo.");
@@ -85,9 +85,9 @@ public class Principal {
                         int codigo_socio = Teclado.leerEntero("Codigo del socio: ");
                         String fecha_inicio = Teclado.leerCadena("Fecha de inicio: ");
 
-                        if(AccesoPrestamo.eliminarPrestamo(codigo_libro, codigo_socio, fecha_inicio)) {
+                        if (AccesoPrestamo.eliminarPrestamo(codigo_libro, codigo_socio, fecha_inicio)) {
                             System.out.println("Se ha eliminado el prestamo correctamente.");
-                        } else{
+                        } else {
                             System.out.println("No se ha podido eliminar el prestamo.");
                         }
                         break;
@@ -97,10 +97,10 @@ public class Principal {
                     case 16: {
                         List<Prestamo> prestamos = AccesoPrestamo.consultarTodosLosPrestamos();
 
-                        if(prestamos.isEmpty()){
+                        if (prestamos.isEmpty()) {
                             System.out.println("No hay ningún prestamo.");
                         } else {
-                            for(Prestamo prestamo : prestamos){
+                            for (Prestamo prestamo : prestamos) {
                                 System.out.println(prestamo.toString());
                             }
                         }
@@ -111,10 +111,10 @@ public class Principal {
                     case 17: {
                         List<Prestamo> prestamos = AccesoPrestamo.consultarTodosLosPrestamosNoDevueltos();
 
-                        if(prestamos.isEmpty()){
+                        if (prestamos.isEmpty()) {
                             System.out.println("No hay nigún prestamo no devuelto.");
-                        } else{
-                            for(Prestamo prestamo : prestamos){
+                        } else {
+                            for (Prestamo prestamo : prestamos) {
                                 System.out.println(prestamo.toString());
                             }
                         }
@@ -128,7 +128,7 @@ public class Principal {
 
                         List<String[]> prestamos = AccesoPrestamo.consultarInfrmacionDePrestamos(fecha_inicial);
 
-                        if(prestamos.isEmpty()){
+                        if (prestamos.isEmpty()) {
                             System.out.println("No se ha encontrado nigún prestamo en esa fecha.");
                         } else {
                             for (String[] prestamo : prestamos) {
@@ -147,9 +147,9 @@ public class Principal {
                     case 21: {
                         List<Libro> libros = AccesoPrestamo.librosPrestadosInferiorMedia();
 
-                        if(libros.isEmpty()){
+                        if (libros.isEmpty()) {
                             System.out.println("Ningún libro ha sido prestado.");
-                        } else{
+                        } else {
                             for (Libro libro : libros) {
                                 System.out.println(libro.toString());
                             }
@@ -161,9 +161,9 @@ public class Principal {
                     case 22: {
                         List<Socio> socios = AccesoPrestamo.sociosPrestadosSuperiorMedia();
 
-                        if(socios.isEmpty()){
+                        if (socios.isEmpty()) {
                             System.out.println("Nigún socio ha hecho un prestamo.");
-                        } else{
+                        } else {
                             for (Socio socio : socios) {
                                 System.out.println(socio.toString());
                             }
@@ -176,7 +176,7 @@ public class Principal {
                     case 23: {
                         List<String[]> totalVecesLibrosPrestados = AccesoPrestamo.vecesLibrosPrestados();
 
-                        if(totalVecesLibrosPrestados.isEmpty()){
+                        if (totalVecesLibrosPrestados.isEmpty()) {
                             System.out.println("Ningún libro ha sido prestado.");
                         } else {
                             for (String[] libro : totalVecesLibrosPrestados) {
@@ -193,7 +193,7 @@ public class Principal {
                     case 24: {
                         List<String[]> totalVecesSociosPrestados = AccesoPrestamo.vecesSociosPrestados();
 
-                        if(totalVecesSociosPrestados.isEmpty()){
+                        if (totalVecesSociosPrestados.isEmpty()) {
                             System.out.println("Ningún socio ha hecho un prestamo.");
                         } else {
                             for (String[] socio : totalVecesSociosPrestados) {
@@ -214,7 +214,7 @@ public class Principal {
                         break;
                     }
                 }
-            } while(opcion != 0);
+            } while (opcion != 0);
         } catch (ExcepcionesBiblioteca e) {
             System.out.println("ERROR: " + e.getMessage());
 

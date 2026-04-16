@@ -79,7 +79,7 @@ public class AccesoPrestamo {
         int lineasInsertadas = 0;
         Connection conexion = null;
 
-        if(!libroDisponible(prestamo.getCodigo_libro())){ // excepcion
+        if(!libroDisponible(prestamo.getCodigo_libro())){
             throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.LIBRO_NO_DISPONIBLE);
         } else if (!puedeSocioPrestar(prestamo.getCodigo_socio())) {
             throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.SOCIO_NO_DISPONIBLE);

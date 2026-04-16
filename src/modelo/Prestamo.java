@@ -94,7 +94,7 @@ public class Prestamo {
         } else{
             resultado += "\nEl libro aún no ha sido devuelto";
         }
-        resultado += "-------------------------------------------------";
+        resultado += "\n-------------------------------------------------";
         return resultado;
     }
 }
