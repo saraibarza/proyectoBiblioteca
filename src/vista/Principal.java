@@ -7,7 +7,6 @@ import excepciones.ExcepcionesBiblioteca;
 import modelo.Libro;
 import modelo.Prestamo;
 import modelo.Socio;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -46,21 +45,24 @@ public class Principal {
      */
     public static int menu() {
         System.out.println("MENU");
-        System.out.println("13. Insertar un préstamo en la base de datos.");
-        System.out.println("14. Actualizar la fecha de devolución de un prestamo en la base de datos.");
+        System.out.println("1. Insertar un socio en la base de datos.");
+        System.out.println("2. Eliminar un socio, por dni, de la base de datos.");
+        System.out.println("3. Consultar todos los socios de la base de datos.");
+        System.out.println("4. Consultar varios socios, por localidad, de la base de datos.");
+        System.out.println("5. Consultar los socios sin prestamos de la base de datos.");
+        System.out.println("6. Consultar los socios con prestamos en una fecha de la base de datos.");
+        System.out.println("13. Insertar un prestamo en la base de datos.");
+        System.out.println("14. Actualizar la fecha de devolucion de un prestamo en la base de datos.");
         System.out.println("15. Eliminar un prestamo en la base de datos.");
-        System.out.println("16. Consultar todos los préstamos de la base de datos.");
-        System.out.println("17. Consultar los préstamos no devueltos de la base de datos.");
-        System.out.println("18. Consultar DNI, nombre de socio, ISBN, título de libro y la fecha de devolución de los\n" +
-                "préstamos realizados en una fecha de la base de datos.");
+        System.out.println("16. Consultar todos los prestamos de la base de datos.");
+        System.out.println("17. Consultar los prestamos no devueltos de la base de datos.");
+        System.out.println("18. Consultar DNI y nombre de socio, ISBN y titulo de libro y fecha de devolucion.");
         System.out.println("21. Consultar los libros que han sido prestados una cantidad de veces inferior a la media.");
-        System.out.println("22. Consultar los socios que han realizado una cantidad de préstamos superior a la media.");
-        System.out.println("23. Consultar el ISBN, el título y el número de veces de los libros que han sido prestados,\n" +
-                "ordenados por el número de préstamos descendente.");
-        System.out.println("24. Consultar el DNI, el nombre y el número de veces de los socios que han realizado préstamos,\n" +
-                "ordenados por el número de préstamos descendente.");
-        System.out.println("0. Finalizar Programa");
-        return Teclado.leerEntero("Opción: ");
+        System.out.println("22. Consultar los socios que han realizado una cantidad de prestamos superior a la media.");
+        System.out.println("23. Consultar el ISBN, el titulo y el numero de veces de los libros prestados.");
+        System.out.println("24. Consultar el DNI, el nombre y el numero de veces de los socios con prestamos.");
+        System.out.println("0. Finalizar programa");
+        return Teclado.leerEntero("Opcion: ");
     }
 
     /**
@@ -233,22 +235,19 @@ public class Principal {
 
                     case 0: {
                         System.out.println("Saliendo del programa...");
-                        break;
                     }
                     default: {
-                        System.out.println("La opción del ménu no es valida.");
+                        System.out.println("La opcion del menu no es valida.");
                         break;
                     }
                 }
             } while (opcion != 0);
         } catch (ExcepcionesBiblioteca e) {
             System.out.println("ERROR: " + e.getMessage());
-
-        } catch (BDException e) {
-            System.err.println("ERROR: " + e.getMessage());
-
-        } catch (Exception e) {
-            System.err.println("ERROR: " + e.getMessage());
+        }  catch (BDException e) {
+            System.out.println("ERROR: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("ERROR: La fecha debe tener formato AAAA-MM-DD.");
         }
     }
 }
