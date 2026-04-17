@@ -155,66 +155,6 @@ public class AccesoSocio {
         return listaSocios;
     }
 
-    private static void mostrarMenu() {
-        System.out.println("----- MENU SOCIOS -----");
-        System.out.println("0. Salir");
-        System.out.println("1. Insertar socio");
-        System.out.println("2. Consultar todos los socios");
-        System.out.println("3. Consultar socios por localidad");
-        System.out.println("4. Consultar socios sin prestamos");
-        System.out.println("5. Consultar socios con prestamos en una fecha");
-        System.out.println("6. Consultar socio o socios con mas prestamos");
-    }
-
-    private static void probarInsertarSocio(Scanner scanner) throws BDException {
-        System.out.print("DNI: ");
-        String dni = scanner.nextLine();
-        System.out.print("Nombre: ");
-        String nombre = scanner.nextLine();
-        System.out.print("Domicilio: ");
-        String domicilio = scanner.nextLine();
-        System.out.print("Telefono: ");
-        String telefono = scanner.nextLine();
-        System.out.print("Correo: ");
-        String correo = scanner.nextLine();
-
-        Socio socio = new Socio(0, dni, nombre, domicilio, telefono, correo);
-        insertarSocio(socio);
-        System.out.println("Se ha insertado un socio en la base de datos.");
-    }
-
-    private static void probarSociosPorLocalidad(Scanner scanner) throws BDException {
-        System.out.print("Localidad: ");
-        String localidad = scanner.nextLine();
-        mostrarSocios(
-                consultarSociosPorLocalidad(localidad),
-                "No existe ningun socio con esa localidad en la base de datos."
-        );
-    }
-
-    private static void probarSociosSinPrestamos() throws BDException {
-        mostrarSocios(
-                consultarSociosSinPrestamos(),
-                "No existe ningun socio sin prestamos en la base de datos."
-        );
-    }
-
-    private static void probarSociosConPrestamosFecha(Scanner scanner) throws BDException {
-        System.out.print("Fecha de inicio (AAAA-MM-DD): ");
-        String fechaTexto = scanner.nextLine();
-        mostrarSocios(
-                consultarSociosConPrestamosFecha(Date.valueOf(fechaTexto)),
-                "No existe ningun socio con prestamos en esa fecha en la base de datos."
-        );
-    }
-
-    private static void probarSociosConMasPrestamos() throws BDException {
-        mostrarSocios(
-                consultarSociosConMasPrestamos(),
-                "No existe ningun socio con prestamos en la base de datos."
-        );
-    }
-
     private static void mostrarSocios(ArrayList<Socio> listaSocios, String mensajeVacio) {
         if (listaSocios.isEmpty()) {
             System.out.println(mensajeVacio);
@@ -225,18 +165,6 @@ public class AccesoSocio {
             System.out.println(socio);
         }
         System.out.println("Se han consultado " + listaSocios.size() + " socios de la base de datos.");
-    }
-
-    private static int leerEntero(Scanner scanner, String mensaje) {
-        while (true) {
-            System.out.print(mensaje);
-            String valor = scanner.nextLine();
-            try {
-                return Integer.parseInt(valor);
-            } catch (NumberFormatException e) {
-                System.out.println("Introduce un numero entero.");
-            }
-        }
     }
 
     private static Socio mapearSocio(ResultSet rs) throws SQLException {
