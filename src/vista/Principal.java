@@ -7,9 +7,38 @@ import excepciones.ExcepcionesBiblioteca;
 import modelo.Libro;
 import modelo.Prestamo;
 import modelo.Socio;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.List;
 
 public class Principal {
+    /**
+     * Metodo que valida las fechas introducidas por el usuario
+     *
+     * @param fechaStr
+     * @throws Exception
+     * @throws ExcepcionesBiblioteca
+     */
+    public static void validarFecha(String fechaStr) throws Exception, ExcepcionesBiblioteca {
+        if (fechaStr == null) {
+            throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.FECHA_NULA);
+        }
+        if (fechaStr.trim().isEmpty()) {
+            throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.FECHA_VACIA);
+        }
+        try {
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd-MM-uuuu").withResolverStyle(ResolverStyle.STRICT);
+            LocalDate.parse(fechaStr, formato);
+        } catch (DateTimeParseException e) {
+            throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.FORMATO_FECHA_INCORRESTO);
+        }
+    }
+
+
+
     /**
      * Menú.
      *
@@ -51,9 +80,8 @@ public class Principal {
                     case 13: {
                         int codigo_libro = Teclado.leerEntero("Código del libro: ");
                         int codigo_socio = Teclado.leerEntero("Código del socio: ");
-                        String fecha_inicio = Teclado.leerCadena("Fecha de inicio: ");
                         String fecha_final = Teclado.leerCadena("Fecha final: ");
-                        Prestamo prestamo = new Prestamo(codigo_libro, codigo_socio, fecha_inicio, fecha_final);
+                        Prestamo prestamo = new Prestamo(codigo_libro, codigo_socio, LocalDate.now().toString(), fecha_final);
 
                         if (AccesoPrestamo.insertarPrestamo(prestamo)) {
                             System.out.println("Se ha insertado el prestamo correctamente.");
@@ -68,9 +96,8 @@ public class Principal {
                         int codigo_libro = Teclado.leerEntero("Código del libro: ");
                         int codigo_socio = Teclado.leerEntero("Código del socio: ");
                         String fecha_inicio = Teclado.leerCadena("Fecha de inicio: ");
-                        String fecha_devolucion = Teclado.leerCadena("Fecha de devolucion: ");
 
-                        if (AccesoPrestamo.actualizarDevolucionDelPrestamo(codigo_libro, codigo_socio, fecha_inicio, fecha_devolucion)) {
+                        if (AccesoPrestamo.actualizarDevolucionDelPrestamo(codigo_libro, codigo_socio, fecha_inicio, LocalDate.now().toString())) {
                             System.out.println("Se ha modificado el prestamo correctamente.");
                         } else {
                             System.out.println("No se ha podido modificar el prestamo.");

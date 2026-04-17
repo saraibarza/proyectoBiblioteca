@@ -67,6 +67,10 @@ public class AccesoPrestamo {
         }
     }
 
+    // metodo por titulo buscar codigo de libro
+
+    // metodo por dni buscsr socio
+
     /**
      * Insertar un préstamo en la base de datos.
      * 13
@@ -195,13 +199,15 @@ public class AccesoPrestamo {
     public static List<Prestamo> consultarTodosLosPrestamos() throws BDException {
         List<Prestamo> prestamos = new ArrayList<>();
         Connection conexion = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             conexion = ConfigMySql.abrirConexion();
             String sql = "SELECT * FROM prestamo";
-            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps = conexion.prepareStatement(sql);
 
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 Prestamo prestamo = new Prestamo(
                         rs.getInt("codigo_libro"),
@@ -270,16 +276,18 @@ public class AccesoPrestamo {
     public static List<String[]> consultarInfrmacionDePrestamos(String fecha) throws BDException {
         List<String[]> prestamos = new ArrayList<>();
         Connection conexion = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             conexion = ConfigMySql.abrirConexion();
             String sql = "SELECT s.dni, s.nombre, l.isbn, l.titulo, p.fecha_devolucion " +
                     "FROM prestamo p JOIN socio s ON p.codigo_socio = s.codigo " +
                     "JOIN libro l ON p.codigo_libro = l.codigo WHERE p.fecha_inicio = ?";
-            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps = conexion.prepareStatement(sql);
 
             ps.setString(1, fecha);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 String[] prestamo = new String[5];
                 prestamo[0] = rs.getString("dni");
@@ -308,6 +316,8 @@ public class AccesoPrestamo {
     public static List<Libro> librosPrestadosInferiorMedia() throws BDException {
         List<Libro> libros = new ArrayList<>();
         Connection conexion = null;
+        PreparedStatement ps  = null;
+        ResultSet rs  = null;
 
         try {
             conexion = ConfigMySql.abrirConexion();
@@ -315,9 +325,9 @@ public class AccesoPrestamo {
                     "WHERE l.codigo = p.codigo_libro " +
                     "GROUP BY l.codigo " +
                     "HAVING COUNT(*) < (SELECT COUNT(*) / COUNT(DISTINCT codigo_libro) FROM prestamo);";
-            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps = conexion.prepareStatement(sql);
 
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 Libro libro = new Libro(/*
                         rs.getInt("codigo"),
@@ -347,6 +357,8 @@ public class AccesoPrestamo {
     public static List<Socio> sociosPrestadosSuperiorMedia() throws BDException {
         List<Socio> socios = new ArrayList<>();
         Connection conexion = null;
+        PreparedStatement  ps  = null;
+        ResultSet rs  = null;
 
         try {
             conexion = ConfigMySql.abrirConexion();
@@ -354,9 +366,9 @@ public class AccesoPrestamo {
                     " JOIN prestamo p ON s.codigo = p.codigo_socio" +
                     " GROUP BY s.codigo" +
                     " HAVING COUNT(*) > (SELECT COUNT(*) / COUNT(DISTINCT codigo_socio) FROM prestamo)";
-            PreparedStatement ps = conexion.prepareStatement(sql);
+            ps = conexion.prepareStatement(sql);
 
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             while (rs.next()) {
                 Socio socio = new Socio(
                         rs.getInt("codigo"),
