@@ -5,48 +5,53 @@ import excepciones.BDException;
 import modelo.Socio;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class AccesoSocio {
-
+    /**
+     * Inserta un socio a la base de datos.
+     *
+     * @param socioNuevo
+     * @throws BDException
+     */
     public static void insertarSocio(Socio socioNuevo) throws BDException {
-        String dni = normalizarDni(socioNuevo.getDni());
-        if (!validarDni(dni)) {
-            throw new BDException("DNI no valido.");
-        }
-
-        String sql = "INSERT INTO socio (dni, nombre, domicilio, telefono, correo) VALUES (?, ?, ?, ?, ?)";
+        String sqlInsertar = "INSERT INTO socio (dni, nombre, domicilio, telefono, correo) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conexion = ConfigMySql.abrirConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+             PreparedStatement ps = conexion.prepareStatement(sqlInsertar)) {
 
-            ps.setString(1, dni);
+            ps.setString(1, socioNuevo.getDni().trim().replace("-", "").replace(" ", "").toUpperCase());
             ps.setString(2, socioNuevo.getNombre());
             ps.setString(3, socioNuevo.getDomicilio());
-            ps.setString(4, socioNuevo.getTelefono());
-            ps.setString(5, socioNuevo.getCorreo());
+            ps.setString(4, socioNuevo.getTelefono().trim());
+            ps.setString(5, socioNuevo.getCorreo().trim());
+
             ps.executeUpdate();
         } catch (SQLException e) {
+            if (e.getSQLState() != null && e.getSQLState().startsWith("23")) {
+                throw new BDException("Ya existe un socio con ese DNI.");
+            }
             throw new BDException(BDException.ERROR_QUERY + e.getMessage());
         }
     }
 
+    /**
+     * Borra un socio de la base de datos.
+     *
+     * @param dni
+     * @return
+     * @throws BDException
+     */
     public static int borrarSocio(String dni) throws BDException {
-        String dniNormalizado = normalizarDni(dni);
-        if (!validarDni(dniNormalizado)) {
-            throw new BDException("DNI no valido.");
-        }
-
         String sqlEliminar = "DELETE FROM socio WHERE dni = ?";
 
         try (Connection conexion = ConfigMySql.abrirConexion();
              PreparedStatement ps = conexion.prepareStatement(sqlEliminar)) {
 
-            ps.setString(1, dniNormalizado);
+            ps.setString(1, dni.trim().replace("-", "").replace(" ", "").toUpperCase());
             return ps.executeUpdate();
         } catch (SQLException e) {
             if (e.getSQLState() != null && e.getSQLState().startsWith("23")) {
@@ -56,12 +61,18 @@ public class AccesoSocio {
         }
     }
 
+    /**
+     * Consulta todos los socios de la base de datos.
+     *
+     * @return
+     * @throws BDException
+     */
     public static ArrayList<Socio> consultarSocios() throws BDException {
-        String sql = "SELECT codigo, dni, nombre, domicilio, telefono, correo FROM socio";
+        String sqlSeleccion = "SELECT codigo, dni, nombre, domicilio, telefono, correo FROM socio";
         ArrayList<Socio> listaSocios = new ArrayList<>();
 
         try (Connection conexion = ConfigMySql.abrirConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql);
+             PreparedStatement ps = conexion.prepareStatement(sqlSeleccion);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -74,18 +85,20 @@ public class AccesoSocio {
         return listaSocios;
     }
 
+    /**
+     * Consulta un socio por su dni.
+     *
+     * @param dni
+     * @return
+     * @throws BDException
+     */
     public static Socio consultarSocioPorDni(String dni) throws BDException {
-        String dniNormalizado = normalizarDni(dni);
-        if (!validarDni(dniNormalizado)) {
-            throw new BDException("DNI no valido.");
-        }
-
         String sql = "SELECT codigo, dni, nombre, domicilio, telefono, correo FROM socio WHERE dni = ?";
 
         try (Connection conexion = ConfigMySql.abrirConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            ps.setString(1, dniNormalizado);
+            ps.setString(1, dni.trim().replace("-", "").replace(" ", "").toUpperCase());
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -99,6 +112,13 @@ public class AccesoSocio {
         return null;
     }
 
+    /**
+     * Consulta un socio por su dirección.
+     *
+     * @param localidad
+     * @return
+     * @throws BDException
+     */
     public static ArrayList<Socio> consultarSociosPorLocalidad(String localidad) throws BDException {
         String sql = "SELECT codigo, dni, nombre, domicilio, telefono, correo " +
                 "FROM socio WHERE domicilio LIKE ? ORDER BY nombre ASC";
@@ -121,6 +141,12 @@ public class AccesoSocio {
         return listaSocios;
     }
 
+    /**
+     * Consultar los socios que no hayan hecho ningún prestamo.
+     *
+     * @return
+     * @throws BDException
+     */
     public static ArrayList<Socio> consultarSociosSinPrestamos() throws BDException {
         String sql = "SELECT s.codigo, s.dni, s.nombre, s.domicilio, s.telefono, s.correo " +
                 "FROM socio s LEFT JOIN prestamo p ON s.codigo = p.codigo_socio " +
@@ -141,7 +167,14 @@ public class AccesoSocio {
         return listaSocios;
     }
 
-    public static ArrayList<Socio> consultarSociosConPrestamosFecha(Date fechaInicio) throws BDException {
+    /**
+     * Consultar un socio que haya hecho un prestamo en una fecha.
+     *
+     * @param fechaInicio
+     * @return
+     * @throws BDException
+     */
+    public static ArrayList<Socio> consultarSociosConPrestamosFecha(String fechaInicio) throws BDException {
         String sql = "SELECT DISTINCT s.codigo, s.dni, s.nombre, s.domicilio, s.telefono, s.correo " +
                 "FROM socio s INNER JOIN prestamo p ON s.codigo = p.codigo_socio " +
                 "WHERE p.fecha_inicio = ?";
@@ -150,7 +183,7 @@ public class AccesoSocio {
         try (Connection conexion = ConfigMySql.abrirConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            ps.setDate(1, fechaInicio);
+            ps.setString(1, fechaInicio);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -164,6 +197,12 @@ public class AccesoSocio {
         return listaSocios;
     }
 
+    /**
+     * Consultar el socio o los socios con más préstamos.
+     *
+     * @return
+     * @throws BDException
+     */
     public static ArrayList<Socio> consultarSociosConMasPrestamos() throws BDException {
         String sql = "SELECT s.codigo, s.dni, s.nombre, s.domicilio, s.telefono, s.correo " +
                 "FROM socio s INNER JOIN prestamo p ON s.codigo = p.codigo_socio " +
@@ -190,27 +229,13 @@ public class AccesoSocio {
         return listaSocios;
     }
 
-    public static boolean validarDni(String dni) {
-        if (dni == null) {
-            return false;
-        }
-
-        String dniNormalizado = normalizarDni(dni);
-        if (!dniNormalizado.matches("\\d{8}[A-Z]")) {
-            return false;
-        }
-
-        int numero = Integer.parseInt(dniNormalizado.substring(0, 8));
-        char letra = dniNormalizado.charAt(8);
-        String letras = "TRWAGMYFPDXBNJZSQVHLCKE";
-
-        return letras.charAt(numero % 23) == letra;
-    }
-
-    private static String normalizarDni(String dni) {
-        return dni == null ? null : dni.trim().toUpperCase();
-    }
-
+    /**
+     * Devuelve todos los datos de un socio.
+     *
+     * @param rs
+     * @return
+     * @throws SQLException
+     */
     private static Socio mapearSocio(ResultSet rs) throws SQLException {
         return new Socio(
                 rs.getInt("codigo"),

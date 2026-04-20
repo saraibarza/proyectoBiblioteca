@@ -16,7 +16,112 @@ import modelo.Socio;
 
 public class AccesoPrestamo {
     /**
-     * Metodo para validar si el libro ha sido ya prestado o no.
+     * Por el título del libro se muestran los libros disponibles para que el usuario ponga el código
+     *
+     * @return
+     * @throws BDException
+     */
+    public static List<Libro> consultarLibrosPorTitulo(String titulo) throws BDException {
+        List<Libro> libros = new ArrayList<>();
+        Connection conexion = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conexion = ConfigMySql.abrirConexion();
+            String sql = "SELECT * FROM libro WHERE titulo = ? AND codigo NOT IN (SELECT codigo_libro FROM prestamo WHERE fecha_devolucion IS NULL)";
+            ps = conexion.prepareStatement(sql);
+            ps.setString(1, titulo);
+
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Libro libro = new Libro(
+                        rs.getInt("codigo"),
+                        rs.getString("isbn"),
+                        rs.getString("titulo"),
+                        rs.getString("escritor"),
+                        rs.getInt("año_publicacion"),
+                        rs.getDouble("puntuacion")
+                );
+                libros.add(libro);
+            }
+        } catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            ConfigMySql.cerrarConexion(conexion);
+        }
+        return libros;
+    }
+
+    /**
+     * Cambia la isbn por el código del libro
+     *
+     * @param isbn
+     * @return
+     * @throws BDException
+     */
+    public static int isbnPorCodLibro(String isbn) throws BDException, ExcepcionesBiblioteca {
+        int codigo_libro = 0;
+        Connection conexion = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conexion = ConfigMySql.abrirConexion();
+            String sql = "SELECT codigo FROM libro WHERE isbn = ?";
+            ps = conexion.prepareStatement(sql);
+            ps.setString(1, isbn);
+
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                codigo_libro = rs.getInt("codigo");
+            } else {
+                throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.CODIGO_LIBRO_NO_ENCONTRADO);
+            }
+        } catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            ConfigMySql.cerrarConexion(conexion);
+        }
+        return codigo_libro;
+    }
+
+    /**
+     * Cambia el dni por el código del socio
+     *
+     * @param dni
+     * @return
+     * @throws BDException
+     */
+    public static int dniPorCodigoSocio(String dni) throws BDException, ExcepcionesBiblioteca {
+        int codigo_socio = 0;
+        Connection conexion = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conexion = ConfigMySql.abrirConexion();
+            String sql = "SELECT codigo FROM socio WHERE dni = ?";
+            ps = conexion.prepareStatement(sql);
+            ps.setString(1, dni);
+
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                codigo_socio = rs.getInt("codigo");
+            } else {
+                throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.CODIGO_SOCIO_NO_ENCONTRADO);
+            }
+        } catch (SQLException e) {
+            throw new BDException(BDException.ERROR_QUERY + e.getMessage());
+        } finally {
+            ConfigMySql.cerrarConexion(conexion);
+        }
+        return codigo_socio;
+    }
+
+
+    /**
+     * Método para validar si el libro ha sido ya prestado o no.
      *
      * @param codigoLibro
      * @return
@@ -42,7 +147,7 @@ public class AccesoPrestamo {
     }
 
     /**
-     * Metodo para validar si un socio ya ha pedido un libro prestado.
+     * Método para validar si un socio ya ha pedido un libro prestado.
      *
      * @param codigoSocio
      * @return
@@ -66,10 +171,6 @@ public class AccesoPrestamo {
             ConfigMySql.cerrarConexion(conexion);
         }
     }
-
-    // metodo por titulo buscar codigo de libro
-
-    // metodo por dni buscsr socio
 
     /**
      * Insertar un préstamo en la base de datos.
@@ -122,14 +223,16 @@ public class AccesoPrestamo {
      * Se devuelve el libro.
      * 14
      *
-     * @param codigo_libro
-     * @param codigo_socio
+     * @param isbn
+     * @param dni
      * @param fecha_inicio
      * @param fecha_devolucion
      * @return
      * @throws BDException
      */
-    public static boolean actualizarDevolucionDelPrestamo(int codigo_libro, int codigo_socio, String fecha_inicio, String fecha_devolucion) throws BDException {
+    public static boolean actualizarDevolucionDelPrestamo(String isbn, String dni, String fecha_inicio, String fecha_devolucion) throws BDException, ExcepcionesBiblioteca {
+        int codigo_libro = isbnPorCodLibro(isbn);
+        int codigo_socio = dniPorCodigoSocio(dni);
         int filasActualizadas = 0;
         Connection conexion = null;
 
@@ -158,13 +261,15 @@ public class AccesoPrestamo {
      * Eliminar un préstamo, por datos identificativos, de la base de datos.
      * 15
      *
-     * @param codigo_libro
-     * @param codigo_socio
+     * @param isbn
+     * @param dni
      * @param fecha_inicio
      * @return
      * @throws BDException
      */
-    public static boolean eliminarPrestamo(int codigo_libro, int codigo_socio, String fecha_inicio) throws BDException {
+    public static boolean eliminarPrestamo(String isbn, String dni, String fecha_inicio) throws BDException, ExcepcionesBiblioteca {
+        int codigo_libro = isbnPorCodLibro(isbn);
+        int codigo_socio = dniPorCodigoSocio(dni);
         int filasEliminadas = 0;
         PreparedStatement ps = null;
         Connection conexion = null;
@@ -316,8 +421,8 @@ public class AccesoPrestamo {
     public static List<Libro> librosPrestadosInferiorMedia() throws BDException {
         List<Libro> libros = new ArrayList<>();
         Connection conexion = null;
-        PreparedStatement ps  = null;
-        ResultSet rs  = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             conexion = ConfigMySql.abrirConexion();
@@ -329,14 +434,14 @@ public class AccesoPrestamo {
 
             rs = ps.executeQuery();
             while (rs.next()) {
-                Libro libro = new Libro(/*
+                Libro libro = new Libro(
                         rs.getInt("codigo"),
                         rs.getString("isbn"),
                         rs.getString("titulo"),
                         rs.getString("escritor"),
                         rs.getInt("año_publicacion"),
                         rs.getDouble("puntuacion")
-                */);
+                );
                 libros.add(libro);
             }
         } catch (SQLException e) {
@@ -357,8 +462,8 @@ public class AccesoPrestamo {
     public static List<Socio> sociosPrestadosSuperiorMedia() throws BDException {
         List<Socio> socios = new ArrayList<>();
         Connection conexion = null;
-        PreparedStatement  ps  = null;
-        ResultSet rs  = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             conexion = ConfigMySql.abrirConexion();
