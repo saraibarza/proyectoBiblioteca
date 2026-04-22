@@ -158,7 +158,9 @@ public class AccesoPrestamo {
 
         try {
             conexion = ConfigMySql.abrirConexion();
-            String sql = "SELECT COUNT(*) FROM prestamo WHERE codigo_socio = ? AND fecha_devolucion IS NULL";
+            String sql = "SELECT COUNT(*) FROM prestamo \n" +
+                    "WHERE codigo_socio = ? \n" +
+                    "AND (fecha_devolucion IS NULL OR fecha_inicio = ?)\n";
             PreparedStatement ps = conexion.prepareStatement(sql);
 
             ps.setInt(1, codigoSocio);
