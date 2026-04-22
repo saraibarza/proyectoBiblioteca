@@ -108,7 +108,7 @@ public class Principal {
      * @throws Exception
      * @throws ExcepcionesBiblioteca
      */
-    public static void validarFecha(String fechaStr) throws Exception, ExcepcionesBiblioteca {
+    public static boolean validarFecha(String fechaStr) throws Exception, ExcepcionesBiblioteca {
         if (fechaStr == null) {
             throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.FECHA_NULA);
         }
@@ -116,11 +116,12 @@ public class Principal {
             throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.FECHA_VACIA);
         }
         try {
-            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd-MM-uuuu").withResolverStyle(ResolverStyle.STRICT);
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
             LocalDate.parse(fechaStr, formato);
         } catch (DateTimeParseException e) {
-            throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.FORMATO_FECHA_INCORRESTO);
+            throw new ExcepcionesBiblioteca(ExcepcionesBiblioteca.FORMATO_FECHA_INCORRECTO);
         }
+        return true;
     }
 
     /**
@@ -167,8 +168,8 @@ public class Principal {
      */
     public static void main(String[] args) throws BDException, ExcepcionesBiblioteca {
         int opcion = 1;
-        try {
-            do {
+        do {
+            try {
                 opcion = menu();
 
                 switch (opcion) {
@@ -259,16 +260,18 @@ public class Principal {
 
                     // Consultar los libros devueltos, en una fecha, de la base de datos.
                     case 6: {
-                        String fecha = Teclado.leerCadena("Fecha de devolución (yyyy-MM-dd): ");
-                        List<Libro> libros6 = AccesoLibro.consultarDevueltosPorFecha(fecha);
+                        String fecha = Teclado.leerCadena("Fecha de devolución (uuuu-MM-dd): ");
+                        if (validarFecha(fecha)) {
+                            List<Libro> libros6 = AccesoLibro.consultarDevueltosPorFecha(fecha);
 
-                        if (libros6.isEmpty()) {
-                            System.out.println("No existe ningún libro devuelto en esa fecha en la base de datos.");
-                        } else {
-                            for (Libro l : libros6) {
-                                System.out.println(l);
+                            if (libros6.isEmpty()) {
+                                System.out.println("No existe ningún libro devuelto en esa fecha en la base de datos.");
+                            } else {
+                                for (Libro l : libros6) {
+                                    System.out.println(l);
+                                }
+                                System.out.println("Se han consultado " + libros6.size() + " libros de la base de datos.");
                             }
-                            System.out.println("Se han consultado " + libros6.size() + " libros de la base de datos.");
                         }
                         break;
                     }
@@ -370,16 +373,18 @@ public class Principal {
 
                     // Consultar los socios con préstamos en una fecha de la base de datos.
                     case 12: {
-                        String fechaTexto = Teclado.leerCadena("Fecha de inicio (DD-MM-AAAA): ");
+                        String fechaTexto = Teclado.leerCadena("Fecha de inicio (uuuu-MM-dd): ");
+                        if (validarFecha(fechaTexto)) {
 
-                        ArrayList<Socio> sociosFecha = AccesoSocio.consultarSociosConPrestamosFecha(fechaTexto);
-                        if (sociosFecha.isEmpty()) {
-                            System.out.println("No existe ningun socio con prestamos en esa fecha en la base de datos.");
-                        } else {
-                            for (Socio socioFecha : sociosFecha) {
-                                System.out.println(socioFecha);
+                            ArrayList<Socio> sociosFecha = AccesoSocio.consultarSociosConPrestamosFecha(fechaTexto);
+                            if (sociosFecha.isEmpty()) {
+                                System.out.println("No existe ningun socio con prestamos en esa fecha en la base de datos.");
+                            } else {
+                                for (Socio socioFecha : sociosFecha) {
+                                    System.out.println(socioFecha);
+                                }
+                                System.out.println("Se han consultado " + sociosFecha.size() + " socios de la base de datos.");
                             }
-                            System.out.println("Se han consultado " + sociosFecha.size() + " socios de la base de datos.");
                         }
                         break;
                     }
@@ -395,13 +400,11 @@ public class Principal {
                             int codigo_libro = Teclado.leerEntero("Código del libro: ");
                             String dni = Teclado.leerCadena("DNI del socio: ");
                             if (validarDni(dni)) {
-                                String fecha_final = Teclado.leerCadena("Fecha final: ");
-
                                 int codigo_socio = AccesoPrestamo.dniPorCodigoSocio(dni);
-                                Prestamo prestamo = new Prestamo(codigo_libro, codigo_socio, LocalDate.now().toString(), fecha_final);
+                                Prestamo prestamo = new Prestamo(codigo_libro, codigo_socio, LocalDate.now().toString(), LocalDate.now().plusDays(30).toString());
 
                                 if (AccesoPrestamo.insertarPrestamo(prestamo)) {
-                                    System.out.println("Se ha insertado el prestamo correctamente.");
+                                    System.out.println("Se ha insertado el prestamo correctamente, tienes 30 días para devolverlo.");
                                 } else {
                                     System.out.println("No se ha podido insertar el prestamo.");
                                 }
@@ -421,11 +424,12 @@ public class Principal {
                             String dni = Teclado.leerCadena("DNI del socio: ");
                             if (validarDni(dni)) {
                                 String fecha_inicio = Teclado.leerCadena("Fecha de inicio: ");
-
-                                if (AccesoPrestamo.actualizarDevolucionDelPrestamo(isbn, dni, fecha_inicio, LocalDate.now().toString())) {
-                                    System.out.println("Se ha modificado el prestamo correctamente.");
-                                } else {
-                                    System.out.println("No se ha podido modificar el prestamo.");
+                                if (validarFecha(fecha_inicio)) {
+                                    if (AccesoPrestamo.actualizarDevolucionDelPrestamo(isbn, dni, fecha_inicio, LocalDate.now().toString())) {
+                                        System.out.println("Se ha modificado el prestamo correctamente.");
+                                    } else {
+                                        System.out.println("No se ha podido modificar el prestamo.");
+                                    }
                                 }
                             } else {
                                 System.out.println("El dni no tiene el formato correcto.");
@@ -443,11 +447,12 @@ public class Principal {
                             String dni = Teclado.leerCadena("DNI del socio: ");
                             if (validarDni(dni)) {
                                 String fecha_inicio = Teclado.leerCadena("Fecha de inicio: ");
-
-                                if (AccesoPrestamo.eliminarPrestamo(isbn, dni, fecha_inicio)) {
-                                    System.out.println("Se ha eliminado el prestamo correctamente.");
-                                } else {
-                                    System.out.println("No se ha podido eliminar el prestamo.");
+                                if (validarFecha(fecha_inicio)) {
+                                    if (AccesoPrestamo.eliminarPrestamo(isbn, dni, fecha_inicio)) {
+                                        System.out.println("Se ha eliminado el prestamo correctamente.");
+                                    } else {
+                                        System.out.println("No se ha podido eliminar el prestamo.");
+                                    }
                                 }
                             } else {
                                 System.out.println("El dni no tiene el formato correcto.");
@@ -489,19 +494,19 @@ public class Principal {
                     // Consultar DNI y nombre de socio, ISBN y título de libro y fecha de devolución de los
                     // préstamos realizados en una fecha de la base de datos.
                     case 18: {
-                        String fecha_inicial = Teclado.leerCadena("Fecha de inicial: ");
-
-                        List<String[]> prestamos = AccesoPrestamo.consultarInfrmacionDePrestamos(fecha_inicial);
-
-                        if (prestamos.isEmpty()) {
-                            System.out.println("No se ha encontrado nigún prestamo en esa fecha.");
-                        } else {
-                            for (String[] prestamo : prestamos) {
-                                System.out.println("DNI: " + prestamo[0]);
-                                System.out.println("Nombre: " + prestamo[1]);
-                                System.out.println("ISBN: " + prestamo[2]);
-                                System.out.println("Titulo: " + prestamo[3]);
-                                System.out.println("Fecha de devolución: " + prestamo[4]);
+                        String fecha_inicio = Teclado.leerCadena("Fecha de inicio: ");
+                        if (validarFecha(fecha_inicio)) {
+                            List<String[]> prestamos = AccesoPrestamo.consultarInformacionDePrestamos(fecha_inicio);
+                            if (prestamos.isEmpty()) {
+                                System.out.println("No se ha encontrado nigún prestamo en esa fecha.");
+                            } else {
+                                for (String[] prestamo : prestamos) {
+                                    System.out.println("DNI: " + prestamo[0]);
+                                    System.out.println("Nombre: " + prestamo[1]);
+                                    System.out.println("ISBN: " + prestamo[2]);
+                                    System.out.println("Titulo: " + prestamo[3]);
+                                    System.out.println("Fecha de devolución: " + prestamo[4]);
+                                }
                             }
                         }
                         break;
@@ -599,7 +604,6 @@ public class Principal {
                         }
                         break;
                     }
-
                     case 0: {
                         System.out.println("Saliendo del programa...");
                         break;
@@ -609,15 +613,17 @@ public class Principal {
                         break;
                     }
                 }
-            } while (opcion != 0);
-        } catch (ExcepcionesBiblioteca e) {
-            System.out.println("ERROR: " + e.getMessage());
-        } catch (BDException e) {
-            System.out.println("ERROR: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            System.out.println("ERROR: La fecha debe tener formato AAAA-MM-DD.");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+            } catch (ExcepcionesBiblioteca e) {
+                System.out.println("ERROR: " + e.getMessage());
+            } catch (BDException e) {
+                System.out.println("ERROR: " + e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.out.println("ERROR: La fecha debe tener formato uuuu-MM-dd.");
+            } catch (SQLException e) {
+                System.out.println("ERROR de base de datos: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getMessage());
+            }
+        } while (opcion != 0);
     }
 }

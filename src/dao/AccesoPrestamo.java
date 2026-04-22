@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -164,6 +165,7 @@ public class AccesoPrestamo {
             PreparedStatement ps = conexion.prepareStatement(sql);
 
             ps.setInt(1, codigoSocio);
+            ps.setString(2, LocalDate.now().toString());
             ResultSet rs = ps.executeQuery();
 
             return rs.next() && rs.getInt(1) == 0;
@@ -380,7 +382,7 @@ public class AccesoPrestamo {
      * @return
      * @throws BDException
      */
-    public static List<String[]> consultarInfrmacionDePrestamos(String fecha) throws BDException {
+    public static List<String[]> consultarInformacionDePrestamos(String fecha) throws BDException {
         List<String[]> prestamos = new ArrayList<>();
         Connection conexion = null;
         PreparedStatement ps = null;

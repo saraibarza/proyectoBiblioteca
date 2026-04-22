@@ -12,7 +12,7 @@ public class ExcepcionesBiblioteca extends Exception {
     // Errores de validar fecha
     public static final String FECHA_NULA ="La fecha no puede ser nula.";
     public static final String FECHA_VACIA ="La fecha no puede estar vacía.";
-    public static final String FORMATO_FECHA_INCORRESTO ="El formato de la fecha debe ser dd-mm-yyyy.";
+    public static final String FORMATO_FECHA_INCORRECTO ="El formato de la fecha debe ser uuuu-mm-dd.";
 
     public ExcepcionesBiblioteca(String mensaje) {
         super(mensaje);
