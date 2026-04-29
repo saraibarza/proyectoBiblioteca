@@ -156,7 +156,6 @@ public class Principal {
         System.out.println("22. Consultar los socios que han realizado una cantidad de prestamos superior a la media.");
         System.out.println("23. Consultar el ISBN, el titulo y el numero de veces de los libros prestados.");
         System.out.println("24. Consultar el DNI, el nombre y el numero de veces de los socios con prestamos.");
-        System.out.println("0. Finalizar programa");
         return Teclado.leerEntero("Opcion: ");
     }
 

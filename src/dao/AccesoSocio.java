@@ -148,9 +148,8 @@ public class AccesoSocio {
      * @throws BDException
      */
     public static ArrayList<Socio> consultarSociosSinPrestamos() throws BDException {
-        String sql = "SELECT s.codigo, s.dni, s.nombre, s.domicilio, s.telefono, s.correo " +
-                "FROM socio s LEFT JOIN prestamo p ON s.codigo = p.codigo_socio " +
-                "WHERE p.codigo_socio IS NULL";
+        String sql = "SELECT s.codigo, s.dni, s.nombre, s.domicilio, s.telefono, s.correo\n" +
+                "FROM socio s WHERE s.codigo NOT IN (SELECT p.codigo_socio FROM prestamo p WHERE p.fecha_devolucion IS NULL);";
         ArrayList<Socio> listaSocios = new ArrayList<>();
 
         try (Connection conexion = ConfigMySql.abrirConexion();

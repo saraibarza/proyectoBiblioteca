@@ -170,7 +170,8 @@ public class AccesoLibro {
         try {
             conexion = ConfigMySql.abrirConexion();
 
-            String sql = "SELECT * FROM libro WHERE codigo NOT IN (SELECT codigo_libro FROM prestamo)";
+            String sql = "SELECT codigo, isbn, titulo, escritor, año_publicacion, puntuacion\n" +
+                    "FROM libro WHERE codigo NOT IN (SELECT codigo_libro FROM prestamo WHERE fecha_devolucion IS NULL);";
 
             ps = conexion.prepareStatement(sql);
             rs = ps.executeQuery();

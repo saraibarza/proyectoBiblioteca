@@ -161,7 +161,7 @@ public class AccesoPrestamo {
             conexion = ConfigMySql.abrirConexion();
             String sql = "SELECT COUNT(*) FROM prestamo \n" +
                     "WHERE codigo_socio = ? \n" +
-                    "AND (fecha_devolucion IS NULL OR fecha_inicio = ?)\n";
+                    "AND (fecha_devolucion IS NULL AND fecha_inicio = ?)\n";
             PreparedStatement ps = conexion.prepareStatement(sql);
 
             ps.setInt(1, codigoSocio);
@@ -280,7 +280,7 @@ public class AccesoPrestamo {
 
         try {
             conexion = ConfigMySql.abrirConexion();
-            String sql = "DELETE FROM prestamo WHERE codigo_libro = ? AND codigo_socio = ? AND fecha_inicio = ?";
+            String sql = "DELETE FROM prestamo WHERE codigo_libro = ? AND codigo_socio = ? AND fecha_inicio = ? AND fecha_devolucion IS NOT NULL";
             ps = conexion.prepareStatement(sql);
 
             ps.setInt(1, codigo_libro);
